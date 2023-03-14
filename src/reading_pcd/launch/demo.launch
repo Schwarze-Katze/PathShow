@@ -1,0 +1,9 @@
+<launch>
+  <arg name="pcd_file" default="/pcd/hard.pcd"/>
+  <node pkg="reading_pcd" type="pcd_read" name="pcd_out"/>
+    <!-- <param name="file_name" value="$(arg pcd_file)"/> -->
+  <!-- </node>   -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find reading_pcd)/launch/show.rviz"/> 
+   
+
+</launch>

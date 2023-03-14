@@ -1,0 +1,17 @@
+
+  <!-- <arg name="map_size_x" default="100.0"/>
+  <arg name="map_size_y" default="100.0"/>
+   -->
+  <!-- <node pkg="rviz" type="rviz" name="rviz" args="-d /home/rancho/triplez/datadeal/path show/src/plan_path/launch/demo.rviz"/> -->
+  <!-- <arg name="pcd_file" default="/pcd/hard2.pcd"/>
+  <node pkg="reading_pcd" type="pcd_read" name="random_complex" output="screen">
+    <param name="file_name" value="$(arg pcd_file)"/>
+  </node>   -->
+<launch>
+
+
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find path_search)/launch/rviz_config/demo1.rviz"/> 
+
+
+
+</launch>
