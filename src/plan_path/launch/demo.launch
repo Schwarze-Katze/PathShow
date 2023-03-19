@@ -5,6 +5,7 @@
    -->
 
   <arg name="inputFile" default="$(arg output_path)/Visualize.yaml"/>
+  <!-- <arg name="inputFile" default="$(arg output_path)/output.yaml" /> -->
   <arg name="pcd_file" default="$(arg output_path)/45x40m.pcd"/>
   <!-- <node pkg="reading_pcd" type="pcd_read" name="random_complex" output="screen">
     <param name="file_name" value="$(arg pcd_file)"/>
@@ -12,7 +13,7 @@
   <node pkg="path_search" type="demo_node" name="plan_node" output="screen">
    <param name="inputFile" value="$(arg inputFile)"/>
    <param name="showspin" value="0.1"/>
-   
+
   </node>
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find path_search)/launch/rviz_config/demo1.rviz"/> 
 

@@ -9,6 +9,7 @@
 #include <string>
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
 #include "visualization_msgs/Marker.h"
+#include <visualization_msgs/MarkerArray.h>
 #include <vector>
 #include <Eigen/Eigen>
 #include <deque>
@@ -57,22 +58,28 @@ std::vector<nav_msgs::Path> UAVTraj;
 nav_msgs::Path path_tmp;
 //添加无人机个数
 
+nav_msgs::Path UGVpath;
+
 std::vector<ros::Publisher> Spath_Pub;
 ros::Publisher Spath_pub;
 
 std::vector<ros::Publisher> Dpath_Pub;
 ros::Publisher Dpath_pub;
 
+ros::Publisher Base_Pub;
+
+ros::Publisher Base_marker_pub;
+
 std::vector<ros::Publisher> mesh_Pub;
 ros::Publisher mesh_pub;
-std::vector<Vector3i> colors = {Vector3i(255,85,0), Vector3i(0,85,0), Vector3i(0,85,127), Vector3i(0,0,255), Vector3i(85,0,255)};
+std::vector<Vector3i> colors = { Vector3i(255,85,0), Vector3i(0,85,0), Vector3i(0,85,127), Vector3i(0,0,255), Vector3i(85,0,255) };
 
 
 std::vector<std::vector<State>> agents;
 
 int agv_count = 0;
 geometry_msgs::Quaternion ToQuaternion(double yaw, double pitch = 0, double roll = 0) {// yaw (Z), pitch (Y), roll (X)
-// Abbreviations for the various angular functions
+    // Abbreviations for the various angular functions
     double cy = cos(yaw * 0.5);
     double sy = sin(yaw * 0.5);
     double cp = cos(pitch * 0.5);
@@ -90,33 +97,32 @@ geometry_msgs::Quaternion ToQuaternion(double yaw, double pitch = 0, double roll
 }
 
 //*发布rviz可视化信息*//
-void timerCallback(const ros::TimerEvent &e){
-    
+void timerCallback(const ros::TimerEvent& e) {
     if (stop_)
         return;
     Vector3d tm_pose;
     color_r = 0, color_g = 0, color_b = 0;
     tm_pose = PoseBag[0].front();
     int num = 0;
-std::cout<<"thisway 1"<<std::endl;
-    for (int i = 0; i < agv_count; i++){
-        if (PoseBag[i].empty()) 
-            continue;
+    std::cout << "start publishing" << std::endl;
+    Base_Pub.publish(UGVpath);
+    UAVTraj.resize(agv_count);
+    for (int i = 0; i < agv_count; i++) {
+        std::cout << "UAVPath" << i << std::endl;
         Dpath_Pub[i].publish(UAVPath[i]);
-        std::cout<<"thisway 2"<<std::endl;
+        if (PoseBag[i].empty())
+            continue;
         tm_pose = PoseBag[i].front();
         current_pose.header.stamp = ros::Time::now();
         current_pose.header.frame_id = "world";
         path_tmp.header.frame_id = _frame_id;
         path_tmp.header.stamp = ros::Time::now();
-        UAVTraj.push_back(path_tmp);//会造成内存浪费
+        UAVTraj[i] = path_tmp;//会造成内存浪费
         current_pose.pose.position.x = tm_pose(0);
         current_pose.pose.position.y = tm_pose(1);
         current_pose.pose.position.z = tm_pose(2);
         UAVTraj[i].poses.push_back(current_pose);
         Spath_Pub[i].publish(UAVTraj[i]);
-        // UAVTraj.clear();
-        std::cout<<"thisway 3"<<std::endl;
         meshROS.header.stamp = ros::Time::now();
         meshROS.id = i;
         meshROS.type = visualization_msgs::Marker::MESH_RESOURCE;
@@ -139,67 +145,72 @@ std::cout<<"thisway 1"<<std::endl;
         mesh_Pub[i].publish(Agentmesh[i]);
 
         PoseBag[i].pop_front();
-
+        std::cout << "finished publishing " << i << std::endl;
     }
 
 }
 
-void yaml_read(std::string filename,std::vector<std::vector<State>> & agents){
-    std::cout<<filename<<std::endl;
+void yaml_read(std::string filename, std::vector<std::vector<State>>& agents) {
+    std::cout << filename << std::endl;
     YAML::Node config = YAML::LoadFile(filename);
-    // for(auto agent: config["schedule"]){
+
     auto cnt = config["schedule"].size();
-    for (int i = 0; i < cnt; i++)
-    {
+    for (int i = 0; i < cnt; i++) {
         std::string name = "agent" + std::to_string(i);
         std::vector<State> single_solution;
         std::cout << name << std::endl;
-        for (auto s : config["schedule"][name])
-        {
+        for (auto s : config["schedule"][name]) {
             State state = State(s["x"].as<double>(), s["y"].as<double>(), s["z"].as<double>());
             // std::cout << s << std::endl;
             single_solution.emplace_back(state);
         }
         agents.emplace_back(single_solution);
-        }
-        
+    }
+
     // }
 
 }
 
-void rviz_show_air(std::vector<std::vector<State>> &solutions){ 
+void rviz_show_air(std::vector<std::vector<State>>& solutions) {
     //*rviz可视化
-    geometry_msgs::PoseStamped curremt_pose;
-    curremt_pose.header.stamp = ros::Time::now();
-    curremt_pose.header.frame_id = "world";
+    geometry_msgs::PoseStamped current_pose;
+    current_pose.header.stamp = ros::Time::now();
+    current_pose.header.frame_id = "world";
 
     Vector3d tm_vec;
     int num = 0;
-    for (int i = 0; i < agv_count;i++){
+    for (int i = 0; i < agv_count;i++) {
         UAVpath.header.stamp = ros::Time::now();
         UAVpath.header.frame_id = "world";
         PoseBag.push_back(Posebag);//empty deque
         UAVPath.push_back(UAVpath);//empty path
-        for (int j = 0; j < solutions[i].size();j++){
+
+        UGVpath.header.stamp = ros::Time::now();
+        UGVpath.header.frame_id = "world";
+        current_pose.pose.position.x = solutions[i][0].x;
+        current_pose.pose.position.y = solutions[i][0].y;
+        current_pose.pose.position.z = solutions[i][0].z;
+        UGVpath.poses.push_back(current_pose);
+
+        for (int j = 0; j < solutions[i].size();j++) {
             // std::cout<<"i="<<i<<", j="<<j<<std::endl;
-            tm_vec(0) = solutions[i][j].x; 
+            tm_vec(0) = solutions[i][j].x;
             tm_vec(1) = solutions[i][j].y;
             tm_vec(2) = solutions[i][j].z;
             // std::cout<<tm_vec<<std::endl;
             PoseBag[i].push_back(tm_vec);
-            curremt_pose.pose.position.x = solutions[i][j].x;
-            curremt_pose.pose.position.y = solutions[i][j].y;
-            curremt_pose.pose.position.z = solutions[i][j].z;
-            UAVPath[i].poses.push_back(curremt_pose);
+            current_pose.pose.position.x = solutions[i][j].x;
+            current_pose.pose.position.y = solutions[i][j].y;
+            current_pose.pose.position.z = solutions[i][j].z;
+            UAVPath[i].poses.push_back(current_pose);
         };
-    };  
+    };
 }
 
 
 
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char* argv[]) {
     //以下为添加部分，初始化ros节点
     ros::init(argc, argv, "demo_node");
     ros::NodeHandle nh("~");
@@ -216,10 +227,12 @@ int main(int argc, char *argv[])
 
     ros::Rate rate(10);
     bool status = ros::ok();
-    yaml_read(inputFile,agents);
+    yaml_read(inputFile, agents);
     agv_count = agents.size();
     std::cout << "agv_count = " << agents.size() << std::endl;
-    for(int i = 0; i < agents.size(); i++){  
+    string bstr = "/Dpath/base";
+    Base_Pub = nh.advertise<nav_msgs::Path>(bstr, 10);
+    for (int i = 0; i < agents.size(); i++) {
         string str1 = "/Spath/agent";
         string str2 = "/Dpath/agent";
         string str3 = "/Robot/agent";
@@ -232,15 +245,15 @@ int main(int argc, char *argv[])
         mesh_pub = nh.advertise<visualization_msgs::Marker>(str3.append(std::to_string(i)), 1);
         mesh_Pub.push_back(mesh_pub);
     }
-    
+
     rviz_show_air(agents);
 
-    
-        
+
+
     stop_ = false;
     ros::spin();
 
 
-      return 0;
-    
+    return 0;
+
 }
