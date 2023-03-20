@@ -53,3 +53,13 @@ namespace std
   };
 } // namespace std
 
+namespace geometry_msgs
+{
+  std::size_t hash_value(Pose const& pos) {
+    std::size_t seed = 0;
+    boost::hash_combine(seed, pos.position.x);
+    boost::hash_combine(seed, pos.position.y);
+    boost::hash_combine(seed, pos.position.z);
+    return seed;
+  }
+} // namespace geometry_msgs

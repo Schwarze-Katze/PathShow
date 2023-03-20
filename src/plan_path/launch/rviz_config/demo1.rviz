@@ -26,7 +26,8 @@ Panels:
         - /Marker7
         - /Marker8
         - /Marker9
-        - /Marker10
+        - /MarkerArray1
+        - /MarkerArray2
       Splitter Ratio: 0.6090225577354431
     Tree Height: 757
   - Class: rviz/Selection
@@ -59,7 +60,7 @@ Visualization Manager:
       Head Diameter: 0.30000001192092896
       Head Length: 0.20000000298023224
       Length: 0.30000001192092896
-      Line Style: Billboards
+      Line Style: Lines
       Line Width: 0.5
       Name: Path
       Offset:
@@ -83,7 +84,7 @@ Visualization Manager:
       Head Diameter: 0.30000001192092896
       Head Length: 0.20000000298023224
       Length: 0.30000001192092896
-      Line Style: Billboards
+      Line Style: Lines
       Line Width: 0.5
       Name: Path
       Offset:
@@ -107,7 +108,7 @@ Visualization Manager:
       Head Diameter: 0.30000001192092896
       Head Length: 0.20000000298023224
       Length: 0.30000001192092896
-      Line Style: Billboards
+      Line Style: Lines
       Line Width: 0.5
       Name: Path
       Offset:
@@ -131,7 +132,7 @@ Visualization Manager:
       Head Diameter: 0.30000001192092896
       Head Length: 0.20000000298023224
       Length: 0.30000001192092896
-      Line Style: Billboards
+      Line Style: Lines
       Line Width: 0.5
       Name: Path
       Offset:
@@ -155,7 +156,7 @@ Visualization Manager:
       Head Diameter: 0.30000001192092896
       Head Length: 0.20000000298023224
       Length: 0.30000001192092896
-      Line Style: Billboards
+      Line Style: Lines
       Line Width: 0.5
       Name: Path
       Offset:
@@ -179,7 +180,7 @@ Visualization Manager:
       Head Diameter: 0.30000001192092896
       Head Length: 0.20000000298023224
       Length: 0.30000001192092896
-      Line Style: Billboards
+      Line Style: Lines
       Line Width: 0.5
       Name: Path
       Offset:
@@ -203,7 +204,7 @@ Visualization Manager:
       Head Diameter: 0.30000001192092896
       Head Length: 0.20000000298023224
       Length: 0.30000001192092896
-      Line Style: Billboards
+      Line Style: Lines
       Line Width: 0.5
       Name: Path
       Offset:
@@ -227,7 +228,7 @@ Visualization Manager:
       Head Diameter: 0.30000001192092896
       Head Length: 0.20000000298023224
       Length: 0.30000001192092896
-      Line Style: Billboards
+      Line Style: Lines
       Line Width: 0.5
       Name: Path
       Offset:
@@ -251,7 +252,7 @@ Visualization Manager:
       Head Diameter: 0.30000001192092896
       Head Length: 0.20000000298023224
       Length: 0.30000001192092896
-      Line Style: Billboards
+      Line Style: Lines
       Line Width: 0.5
       Name: Path
       Offset:
@@ -275,7 +276,7 @@ Visualization Manager:
       Head Diameter: 0.30000001192092896
       Head Length: 0.20000000298023224
       Length: 0.30000001192092896
-      Line Style: Billboards
+      Line Style: Lines
       Line Width: 0.5
       Name: Path
       Offset:
@@ -362,83 +363,99 @@ Visualization Manager:
       Unreliable: false
       Value: true
     - Class: rviz/Marker
-      Enabled: true
+      Enabled: false
       Marker Topic: /Robot/agent0
       Name: Marker
       Namespaces:
-        mesh: true
+        {}
       Queue Size: 100
-      Value: true
+      Value: false
     - Class: rviz/Marker
-      Enabled: true
+      Enabled: false
       Marker Topic: /Robot/agent1
       Name: Marker
       Namespaces:
-        mesh: true
+        {}
       Queue Size: 100
-      Value: true
+      Value: false
     - Class: rviz/Marker
-      Enabled: true
+      Enabled: false
       Marker Topic: /Robot/agent2
       Name: Marker
       Namespaces:
-        mesh: true
+        {}
       Queue Size: 100
-      Value: true
+      Value: false
     - Class: rviz/Marker
-      Enabled: true
+      Enabled: false
       Marker Topic: /Robot/agent3
       Name: Marker
       Namespaces:
         {}
       Queue Size: 100
-      Value: true
+      Value: false
     - Class: rviz/Marker
-      Enabled: true
+      Enabled: false
       Marker Topic: /Robot/agent4
       Name: Marker
       Namespaces:
         {}
       Queue Size: 100
-      Value: true
+      Value: false
     - Class: rviz/Marker
-      Enabled: true
+      Enabled: false
       Marker Topic: /Robot/agent5
       Name: Marker
       Namespaces:
         {}
       Queue Size: 100
-      Value: true
+      Value: false
     - Class: rviz/Marker
-      Enabled: true
+      Enabled: false
       Marker Topic: /Robot/agent6
       Name: Marker
       Namespaces:
         {}
       Queue Size: 100
-      Value: true
+      Value: false
     - Class: rviz/Marker
-      Enabled: true
+      Enabled: false
       Marker Topic: /Robot/agent7
       Name: Marker
       Namespaces:
         {}
       Queue Size: 100
-      Value: true
+      Value: false
     - Class: rviz/Marker
-      Enabled: true
+      Enabled: false
       Marker Topic: /Robot/agent8
       Name: Marker
       Namespaces:
         {}
       Queue Size: 100
-      Value: true
+      Value: false
     - Class: rviz/Marker
       Enabled: true
       Marker Topic: /Robot/agent9
       Name: Marker
       Namespaces:
         {}
+      Queue Size: 100
+      Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /Marker/base
+      Name: MarkerArray
+      Namespaces:
+        ugvpath: true
+      Queue Size: 100
+      Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /Marker/agent
+      Name: MarkerArray
+      Namespaces:
+        uavpath: true
       Queue Size: 100
       Value: true
   Enabled: true
@@ -459,7 +476,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 592.5993041992188
+      Distance: 606.7460327148438
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -467,17 +484,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 262.7268981933594
-        Y: 145.62808227539062
-        Z: -61.606178283691406
+        X: 263.222900390625
+        Y: 145.36318969726562
+        Z: -62.27714538574219
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.3247970938682556
+      Pitch: 0.44479718804359436
       Target Frame: <Fixed Frame>
-      Yaw: 3.339885711669922
+      Yaw: 3.1098814010620117
     Saved:
       - Class: rviz/Orbit
         Distance: 79.24484252929688

@@ -13,6 +13,7 @@
 #include <vector>
 #include <Eigen/Eigen>
 #include <deque>
+#include <unordered_set>
 #include <sstream>
 #include "yaml-cpp/yaml.h"
 #include <fstream>
@@ -42,6 +43,9 @@ bool stop_ = true;
 std::vector<visualization_msgs::Marker> Agentmesh;
 visualization_msgs::Marker meshROS;
 
+visualization_msgs::MarkerArray MarkerArray;//target
+visualization_msgs::MarkerArray MarkerBaseArray;//stop position
+
 geometry_msgs::PoseStamped current_pose;
 double showspin;
 
@@ -68,7 +72,9 @@ ros::Publisher Dpath_pub;
 
 ros::Publisher Base_Pub;
 
-ros::Publisher Base_marker_pub;
+ros::Publisher MarkerBasePub;
+
+ros::Publisher MarkerPub;
 
 std::vector<ros::Publisher> mesh_Pub;
 ros::Publisher mesh_pub;
@@ -106,6 +112,9 @@ void timerCallback(const ros::TimerEvent& e) {
     int num = 0;
     std::cout << "start publishing" << std::endl;
     Base_Pub.publish(UGVpath);
+
+    MarkerBasePub.publish(MarkerBaseArray);
+    MarkerPub.publish(MarkerArray);
     UAVTraj.resize(agv_count);
     for (int i = 0; i < agv_count; i++) {
         std::cout << "UAVPath" << i << std::endl;
@@ -176,10 +185,19 @@ void rviz_show_air(std::vector<std::vector<State>>& solutions) {
     geometry_msgs::PoseStamped current_pose;
     current_pose.header.stamp = ros::Time::now();
     current_pose.header.frame_id = "world";
-
+    geometry_msgs::Pose stopPose;
+    std::unordered_set<geometry_msgs::Pose, boost::hash<geometry_msgs::Pose>> stopSet;
+    geometry_msgs::Pose uavPose;
+    std::unordered_set<geometry_msgs::Pose, boost::hash<geometry_msgs::Pose>> uavSet;
     Vector3d tm_vec;
     int num = 0;
+    
     for (int i = 0; i < agv_count;i++) {
+        stopPose.position.x = solutions[i][0].x;
+        stopPose.position.y = solutions[i][0].y;
+        stopPose.position.z = solutions[i][0].z;
+        stopSet.insert(stopPose);
+
         UAVpath.header.stamp = ros::Time::now();
         UAVpath.header.frame_id = "world";
         PoseBag.push_back(Posebag);//empty deque
@@ -193,6 +211,12 @@ void rviz_show_air(std::vector<std::vector<State>>& solutions) {
         UGVpath.poses.push_back(current_pose);
 
         for (int j = 0; j < solutions[i].size();j++) {
+            uavPose.position.y = solutions[i][j].y;
+            uavPose.position.z = solutions[i][j].z;
+            uavPose.position.x = solutions[i][j].x;
+            if (stopSet.count(uavPose) == 0) {
+                uavSet.insert(uavPose);
+            }
             // std::cout<<"i="<<i<<", j="<<j<<std::endl;
             tm_vec(0) = solutions[i][j].x;
             tm_vec(1) = solutions[i][j].y;
@@ -205,6 +229,39 @@ void rviz_show_air(std::vector<std::vector<State>>& solutions) {
             UAVPath[i].poses.push_back(current_pose);
         };
     };
+    //path marker for ugv&uav
+    visualization_msgs::Marker marker;
+    marker.header.frame_id = "world";
+    marker.header.stamp = ros::Time::now();
+    marker.ns = "ugvpath";
+    marker.action = visualization_msgs::Marker::ADD;
+    marker.type = visualization_msgs::Marker::SPHERE;
+    marker.scale.x = 5;
+    marker.scale.y = 5;
+    marker.scale.z = 2;
+    marker.color.a = color_a;
+    marker.color.r = 1.0;
+    marker.color.g = 0.0;
+    marker.color.b = 0.0;
+    int cnt = 0;
+    for (auto& pose : stopSet) {
+        marker.pose = pose;
+        marker.id = cnt++;
+        MarkerBaseArray.markers.push_back(marker);
+    }
+    cnt = 0;
+    marker.ns = "uavpath";
+    marker.scale.x = 2;
+    marker.scale.y = 2;
+    marker.scale.z = 1;
+    marker.color.r = 0.0;
+    marker.color.g = 0.0;
+    marker.color.b = 1.0;
+    for (auto& pose : uavSet) {
+        marker.pose = pose;
+        marker.id = cnt++;
+        MarkerArray.markers.push_back(marker);
+    }
 }
 
 
@@ -232,6 +289,10 @@ int main(int argc, char* argv[]) {
     std::cout << "agv_count = " << agents.size() << std::endl;
     string bstr = "/Dpath/base";
     Base_Pub = nh.advertise<nav_msgs::Path>(bstr, 10);
+    string mstr = "/Marker/base";
+    MarkerBasePub = nh.advertise<visualization_msgs::MarkerArray>(mstr, 10);
+    mstr = "/Marker/agent";
+    MarkerPub = nh.advertise<visualization_msgs::MarkerArray>(mstr, 10);
     for (int i = 0; i < agents.size(); i++) {
         string str1 = "/Spath/agent";
         string str2 = "/Dpath/agent";
