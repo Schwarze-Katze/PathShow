@@ -73,7 +73,7 @@ Visualization Manager:
       Radius: 0.029999999329447746
       Shaft Diameter: 0.10000000149011612
       Shaft Length: 0.10000000149011612
-      Topic: /Spath/agent0
+      Topic: /Dpath/agent0
       Unreliable: false
       Value: true
     - Alpha: 1
@@ -97,7 +97,7 @@ Visualization Manager:
       Radius: 0.029999999329447746
       Shaft Diameter: 0.10000000149011612
       Shaft Length: 0.10000000149011612
-      Topic: /Spath/agent1
+      Topic: /Dpath/agent1
       Unreliable: false
       Value: true
     - Alpha: 1
@@ -121,7 +121,7 @@ Visualization Manager:
       Radius: 0.029999999329447746
       Shaft Diameter: 0.10000000149011612
       Shaft Length: 0.10000000149011612
-      Topic: /Spath/agent2
+      Topic: /Dpath/agent2
       Unreliable: false
       Value: true
     - Alpha: 1
@@ -145,7 +145,7 @@ Visualization Manager:
       Radius: 0.029999999329447746
       Shaft Diameter: 0.10000000149011612
       Shaft Length: 0.10000000149011612
-      Topic: /Spath/agent3
+      Topic: /Dpath/agent3
       Unreliable: false
       Value: true
     - Alpha: 1
@@ -169,7 +169,7 @@ Visualization Manager:
       Radius: 0.029999999329447746
       Shaft Diameter: 0.10000000149011612
       Shaft Length: 0.10000000149011612
-      Topic: /Spath/agent4
+      Topic: /Dpath/agent4
       Unreliable: false
       Value: true
     - Alpha: 1
@@ -193,7 +193,7 @@ Visualization Manager:
       Radius: 0.029999999329447746
       Shaft Diameter: 0.10000000149011612
       Shaft Length: 0.10000000149011612
-      Topic: /Spath/agent5
+      Topic: /Dpath/agent5
       Unreliable: false
       Value: true
     - Alpha: 1
@@ -217,7 +217,7 @@ Visualization Manager:
       Radius: 0.029999999329447746
       Shaft Diameter: 0.10000000149011612
       Shaft Length: 0.10000000149011612
-      Topic: /Spath/agent6
+      Topic: /Dpath/agent6
       Unreliable: false
       Value: true
     - Alpha: 1
@@ -241,7 +241,7 @@ Visualization Manager:
       Radius: 0.029999999329447746
       Shaft Diameter: 0.10000000149011612
       Shaft Length: 0.10000000149011612
-      Topic: /Spath/agent7
+      Topic: /Dpath/agent7
       Unreliable: false
       Value: true
     - Alpha: 1
@@ -265,7 +265,7 @@ Visualization Manager:
       Radius: 0.029999999329447746
       Shaft Diameter: 0.10000000149011612
       Shaft Length: 0.10000000149011612
-      Topic: /Spath/agent8
+      Topic: /Dpath/agent8
       Unreliable: false
       Value: true
     - Alpha: 1
@@ -289,7 +289,7 @@ Visualization Manager:
       Radius: 0.029999999329447746
       Shaft Diameter: 0.10000000149011612
       Shaft Length: 0.10000000149011612
-      Topic: /Spath/agent9
+      Topic: /Dpath/agent9
       Unreliable: false
       Value: true
     - Alpha: 1
@@ -346,7 +346,7 @@ Visualization Manager:
       Head Diameter: 0.30000001192092896
       Head Length: 0.20000000298023224
       Length: 0.30000001192092896
-      Line Style: Billboards
+      Line Style: Lines
       Line Width: 1
       Name: Path
       Offset:
@@ -476,7 +476,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 482.3857727050781
+      Distance: 455.19476318359375
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -484,9 +484,9 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 42.98671340942383
-        Y: 19.526262283325195
-        Z: -58.24227523803711
+        X: 145.92991638183594
+        Y: 58.54404067993164
+        Z: -58.13996887207031
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
@@ -494,7 +494,7 @@ Visualization Manager:
       Near Clip Distance: 0.009999999776482582
       Pitch: 1.5697963237762451
       Target Frame: <Fixed Frame>
-      Yaw: 3.1298828125
+      Yaw: 3.1498823165893555
     Saved:
       - Class: rviz/Orbit
         Distance: 79.24484252929688

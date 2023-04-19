@@ -81,7 +81,7 @@ ros::Publisher mesh_pub;
 std::vector<Vector3i> colors = { Vector3i(255,85,0), Vector3i(0,85,0), Vector3i(0,85,127), Vector3i(0,0,255), Vector3i(85,0,255) };
 
 
-std::vector<std::vector<State>> agents;
+std::vector<std::vector<State>> agents, agentsStop;
 
 int agv_count = 0;
 geometry_msgs::Quaternion ToQuaternion(double yaw, double pitch = 0, double roll = 0) {// yaw (Z), pitch (Y), roll (X)
@@ -110,14 +110,14 @@ void timerCallback(const ros::TimerEvent& e) {
     color_r = 0, color_g = 0, color_b = 0;
     tm_pose = PoseBag[0].front();
     int num = 0;
-    // std::cout << "start publishing" << std::endl;
+    std::cout << "start publishing" << std::endl;
     Base_Pub.publish(UGVpath);
 
     MarkerBasePub.publish(MarkerBaseArray);
     MarkerPub.publish(MarkerArray);
     UAVTraj.resize(agv_count);
     for (int i = 0; i < agv_count; i++) {
-        // std::cout << "UAVPath" << i << std::endl;
+        std::cout << "UAVPath" << i << std::endl;
         Dpath_Pub[i].publish(UAVPath[i]);
         if (PoseBag[i].empty())
             continue;
@@ -154,19 +154,19 @@ void timerCallback(const ros::TimerEvent& e) {
         mesh_Pub[i].publish(Agentmesh[i]);
 
         PoseBag[i].pop_front();
-        // std::cout << "finished publishing " << i << std::endl;
+        std::cout << "finished publishing " << i << std::endl;
     }
 
 }
 
-void yaml_read(std::string filename, std::vector<std::vector<State>>& agents) {
+void yaml_read(std::string filename, std::vector<std::vector<State>>& agents, std::vector<std::vector<State>>& agentsStop) {
     std::cout << filename << std::endl;
     YAML::Node config = YAML::LoadFile(filename);
 
     auto cnt = config["schedule"].size();
     for (int i = 0; i < cnt; i++) {
         std::string name = "agent" + std::to_string(i);
-        std::vector<State> single_solution;
+        std::vector<State> single_solution, single_stop;
         std::cout << name << std::endl;
         for (auto s : config["schedule"][name]) {
             State state;
@@ -179,15 +179,19 @@ void yaml_read(std::string filename, std::vector<std::vector<State>>& agents) {
             }
             // std::cout << s << std::endl;
             single_solution.emplace_back(state);
+            if (s["t"].as<int>() == 0) {
+                single_stop.emplace_back(state);
+            }
         }
         agents.emplace_back(single_solution);
+        agentsStop.emplace_back(single_stop);
     }
 
     // }
 
 }
 
-void rviz_show(std::vector<std::vector<State>>& solutions) {
+void rviz_show(std::vector<std::vector<State>>& solutions, std::vector<std::vector<State>>& solutionStop) {
     //*rviz可视化
     geometry_msgs::PoseStamped current_pose;
     current_pose.header.stamp = ros::Time::now();
@@ -218,9 +222,9 @@ void rviz_show(std::vector<std::vector<State>>& solutions) {
         UGVpath.poses.push_back(current_pose);
 
         for (int j = 0; j < solutions[i].size();j++) {
-            uavPose.position.y = solutions[i][j].y;
-            uavPose.position.z = solutions[i][j].z;
-            uavPose.position.x = solutions[i][j].x;
+            uavPose.position.y = solutionStop[i][j].y;
+            uavPose.position.z = solutionStop[i][j].z;
+            uavPose.position.x = solutionStop[i][j].x;
             if (stopSet.count(uavPose) == 0) {
                 uavSet.insert(uavPose);
             }
@@ -240,8 +244,8 @@ void rviz_show(std::vector<std::vector<State>>& solutions) {
     current_pose.pose.position.y = solutions[0][0].y;
     current_pose.pose.position.z = solutions[0][0].z;
     UGVpath.poses.push_back(current_pose);
-    
-    
+
+
     //path marker for ugv&uav
     visualization_msgs::Marker marker;
     marker.header.frame_id = "world";
@@ -297,7 +301,7 @@ int main(int argc, char* argv[]) {
 
     ros::Rate rate(10);
     bool status = ros::ok();
-    yaml_read(inputFile, agents);
+    yaml_read(inputFile, agents, agentsStop);
     agv_count = agents.size();
     std::cout << "agv_count = " << agents.size() << std::endl;
     string bstr = "/Dpath/base";
@@ -320,7 +324,7 @@ int main(int argc, char* argv[]) {
         mesh_Pub.push_back(mesh_pub);
     }
 
-    rviz_show(agents);
+    rviz_show(agents, agentsStop);
 
 
 
