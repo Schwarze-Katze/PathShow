@@ -110,14 +110,14 @@ void timerCallback(const ros::TimerEvent& e) {
     color_r = 0, color_g = 0, color_b = 0;
     tm_pose = PoseBag[0].front();
     int num = 0;
-    std::cout << "start publishing" << std::endl;
+    // std::cout << "start publishing" << std::endl;
     Base_Pub.publish(UGVpath);
 
     MarkerBasePub.publish(MarkerBaseArray);
     MarkerPub.publish(MarkerArray);
     UAVTraj.resize(agv_count);
     for (int i = 0; i < agv_count; i++) {
-        std::cout << "UAVPath" << i << std::endl;
+        // std::cout << "UAVPath" << i << std::endl;
         Dpath_Pub[i].publish(UAVPath[i]);
         if (PoseBag[i].empty())
             continue;
@@ -154,7 +154,7 @@ void timerCallback(const ros::TimerEvent& e) {
         mesh_Pub[i].publish(Agentmesh[i]);
 
         PoseBag[i].pop_front();
-        std::cout << "finished publishing " << i << std::endl;
+        // std::cout << "finished publishing " << i << std::endl;
     }
 
 }
@@ -169,7 +169,14 @@ void yaml_read(std::string filename, std::vector<std::vector<State>>& agents) {
         std::vector<State> single_solution;
         std::cout << name << std::endl;
         for (auto s : config["schedule"][name]) {
-            State state = State(s["x"].as<double>(), s["y"].as<double>(), s["z"].as<double>());
+            State state;
+            double scale = 5;
+            if (s["z"]) {
+                state = State(s["x"].as<double>() * scale, s["y"].as<double>() * scale, s["z"].as<double>() * scale);
+            }
+            else {
+                state = State(s["x"].as<double>() * scale, s["y"].as<double>() * scale, 0.0);
+            }
             // std::cout << s << std::endl;
             single_solution.emplace_back(state);
         }
@@ -180,7 +187,7 @@ void yaml_read(std::string filename, std::vector<std::vector<State>>& agents) {
 
 }
 
-void rviz_show_air(std::vector<std::vector<State>>& solutions) {
+void rviz_show(std::vector<std::vector<State>>& solutions) {
     //*rviz可视化
     geometry_msgs::PoseStamped current_pose;
     current_pose.header.stamp = ros::Time::now();
@@ -191,7 +198,7 @@ void rviz_show_air(std::vector<std::vector<State>>& solutions) {
     std::unordered_set<geometry_msgs::Pose, boost::hash<geometry_msgs::Pose>> uavSet;
     Vector3d tm_vec;
     int num = 0;
-    
+
     for (int i = 0; i < agv_count;i++) {
         stopPose.position.x = solutions[i][0].x;
         stopPose.position.y = solutions[i][0].y;
@@ -229,6 +236,12 @@ void rviz_show_air(std::vector<std::vector<State>>& solutions) {
             UAVPath[i].poses.push_back(current_pose);
         };
     };
+    current_pose.pose.position.x = solutions[0][0].x;
+    current_pose.pose.position.y = solutions[0][0].y;
+    current_pose.pose.position.z = solutions[0][0].z;
+    UGVpath.poses.push_back(current_pose);
+    
+    
     //path marker for ugv&uav
     visualization_msgs::Marker marker;
     marker.header.frame_id = "world";
@@ -297,17 +310,17 @@ int main(int argc, char* argv[]) {
         string str1 = "/Spath/agent";
         string str2 = "/Dpath/agent";
         string str3 = "/Robot/agent";
-        Spath_pub = nh.advertise<nav_msgs::Path>(str2.append(std::to_string(i)), 2);
+        Spath_pub = nh.advertise<nav_msgs::Path>(str1 + std::to_string(i), 2);
         Spath_Pub.push_back(Spath_pub);
 
-        Dpath_pub = nh.advertise<nav_msgs::Path>(str1.append(std::to_string(i)), 2);
+        Dpath_pub = nh.advertise<nav_msgs::Path>(str2 + std::to_string(i), 2);
         Dpath_Pub.push_back(Dpath_pub);
 
-        mesh_pub = nh.advertise<visualization_msgs::Marker>(str3.append(std::to_string(i)), 1);
+        mesh_pub = nh.advertise<visualization_msgs::Marker>(str3 + std::to_string(i), 1);
         mesh_Pub.push_back(mesh_pub);
     }
 
-    rviz_show_air(agents);
+    rviz_show(agents);
 
 
 

@@ -1,0 +1,131 @@
+statistics:
+  cost: 33
+  makespan: 13
+  runtime: 0.00820196
+  highLevelExpanded: 2
+  lowLevelExpanded: 76
+  numTaskAssignments: 1
+schedule:
+  agent0:
+    - x: 21
+      y: 9
+      t: 0
+    - x: 22
+      y: 9
+      t: 1
+    - x: 23
+      y: 9
+      t: 2
+    - x: 24
+      y: 9
+      t: 3
+  agent1:
+    - x: 21
+      y: 30
+      t: 0
+    - x: 22
+      y: 30
+      t: 1
+    - x: 23
+      y: 30
+      t: 2
+    - x: 24
+      y: 30
+      t: 3
+  agent2:
+    - x: 38
+      y: 22
+      t: 0
+    - x: 37
+      y: 22
+      t: 1
+    - x: 36
+      y: 22
+      t: 2
+    - x: 35
+      y: 22
+      t: 3
+    - x: 34
+      y: 22
+      t: 4
+    - x: 34
+      y: 23
+      t: 5
+    - x: 33
+      y: 23
+      t: 6
+    - x: 32
+      y: 23
+      t: 7
+    - x: 31
+      y: 23
+      t: 8
+    - x: 31
+      y: 22
+      t: 9
+  agent3:
+    - x: 21
+      y: 22
+      t: 0
+    - x: 20
+      y: 22
+      t: 1
+    - x: 19
+      y: 22
+      t: 2
+    - x: 18
+      y: 22
+      t: 3
+    - x: 17
+      y: 22
+      t: 4
+    - x: 17
+      y: 21
+      t: 5
+    - x: 17
+      y: 20
+      t: 6
+    - x: 17
+      y: 19
+      t: 7
+    - x: 18
+      y: 19
+      t: 8
+    - x: 19
+      y: 19
+      t: 9
+    - x: 20
+      y: 19
+      t: 10
+    - x: 21
+      y: 19
+      t: 11
+    - x: 21
+      y: 18
+      t: 12
+    - x: 21
+      y: 17
+      t: 13
+  agent4:
+    - x: 36
+      y: 22
+      t: 0
+    - x: 35
+      y: 22
+      t: 1
+    - x: 34
+      y: 22
+      t: 2
+    - x: 33
+      y: 22
+      t: 3
+  agent5:
+    - x: 38
+      y: 30
+      t: 0
+    - x: 37
+      y: 30
+      t: 1
+    - x: 36
+      y: 30
+      t: 2
