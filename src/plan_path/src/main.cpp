@@ -13,7 +13,7 @@
 #include <vector>
 #include <Eigen/Eigen>
 #include <deque>
-#include <unordered_set>
+#include <unordered_map>
 #include <sstream>
 #include "yaml-cpp/yaml.h"
 #include <fstream>
@@ -30,6 +30,7 @@ typedef std::vector<std::pair<double, double>> CandidateSol;
 
 
 std::vector<std::vector<CandidateSol>>  candidatesolutions;
+double scale = 2;
 
 using Eigen::Vector4d;
 using Eigen::Vector3i;
@@ -110,14 +111,14 @@ void timerCallback(const ros::TimerEvent& e) {
     color_r = 0, color_g = 0, color_b = 0;
     tm_pose = PoseBag[0].front();
     int num = 0;
-    std::cout << "start publishing" << std::endl;
+    // std::cout << "start publishing" << std::endl;
     Base_Pub.publish(UGVpath);
 
     MarkerBasePub.publish(MarkerBaseArray);
     MarkerPub.publish(MarkerArray);
     UAVTraj.resize(agv_count);
     for (int i = 0; i < agv_count; i++) {
-        std::cout << "UAVPath" << i << std::endl;
+        // std::cout << "UAVPath" << i << std::endl;
         Dpath_Pub[i].publish(UAVPath[i]);
         if (PoseBag[i].empty())
             continue;
@@ -130,13 +131,14 @@ void timerCallback(const ros::TimerEvent& e) {
         current_pose.pose.position.x = tm_pose(0);
         current_pose.pose.position.y = tm_pose(1);
         current_pose.pose.position.z = tm_pose(2);
+        current_pose.pose.orientation = ToQuaternion(0);
         UAVTraj[i].poses.push_back(current_pose);
         Spath_Pub[i].publish(UAVTraj[i]);
         meshROS.header.stamp = ros::Time::now();
         meshROS.id = i;
         meshROS.type = visualization_msgs::Marker::MESH_RESOURCE;
         meshROS.action = visualization_msgs::Marker::ADD;
-        // meshROS.pose.orientation = ToQuaternion(tm_pose(2));
+        // meshROS.pose.orientation = ToQuaternion(tm_pose(2));Position contains invalid floating point values (nans or infs) Uninitialized quaternion, assuming identity.
         meshROS.scale.x = 2.5;
         meshROS.scale.y = 2.5;
         meshROS.scale.z = 2.5;
@@ -154,7 +156,7 @@ void timerCallback(const ros::TimerEvent& e) {
         mesh_Pub[i].publish(Agentmesh[i]);
 
         PoseBag[i].pop_front();
-        std::cout << "finished publishing " << i << std::endl;
+        // std::cout << "finished publishing " << i << std::endl;
     }
 
 }
@@ -170,7 +172,6 @@ void yaml_read(std::string filename, std::vector<std::vector<State>>& agents, st
         std::cout << name << std::endl;
         for (auto s : config["schedule"][name]) {
             State state;
-            double scale = 5;
             if (s["z"]) {
                 state = State(s["x"].as<double>() * scale, s["y"].as<double>() * scale, s["z"].as<double>() * scale);
             }
@@ -185,6 +186,7 @@ void yaml_read(std::string filename, std::vector<std::vector<State>>& agents, st
         }
         agents.emplace_back(single_solution);
         agentsStop.emplace_back(single_stop);
+        
     }
 
     // }
@@ -197,9 +199,11 @@ void rviz_show(std::vector<std::vector<State>>& solutions, std::vector<std::vect
     current_pose.header.stamp = ros::Time::now();
     current_pose.header.frame_id = "world";
     geometry_msgs::Pose stopPose;
-    std::unordered_set<geometry_msgs::Pose, boost::hash<geometry_msgs::Pose>> stopSet;
+    // std::unordered_set<geometry_msgs::Pose, boost::hash<geometry_msgs::Pose>> stopSet;
+    std::unordered_map<geometry_msgs::Pose, int, boost::hash<geometry_msgs::Pose>> stopSet;
     geometry_msgs::Pose uavPose;
-    std::unordered_set<geometry_msgs::Pose, boost::hash<geometry_msgs::Pose>> uavSet;
+    // std::unordered_set<geometry_msgs::Pose, boost::hash<geometry_msgs::Pose>> uavSet;
+    std::unordered_map<geometry_msgs::Pose, int, boost::hash<geometry_msgs::Pose>> uavSet;
     Vector3d tm_vec;
     int num = 0;
 
@@ -207,7 +211,8 @@ void rviz_show(std::vector<std::vector<State>>& solutions, std::vector<std::vect
         stopPose.position.x = solutions[i][0].x;
         stopPose.position.y = solutions[i][0].y;
         stopPose.position.z = solutions[i][0].z;
-        stopSet.insert(stopPose);
+        stopPose.orientation = ToQuaternion(0);
+        stopSet.emplace(stopPose, i);
 
         UAVpath.header.stamp = ros::Time::now();
         UAVpath.header.frame_id = "world";
@@ -219,15 +224,19 @@ void rviz_show(std::vector<std::vector<State>>& solutions, std::vector<std::vect
         current_pose.pose.position.x = solutions[i][0].x;
         current_pose.pose.position.y = solutions[i][0].y;
         current_pose.pose.position.z = solutions[i][0].z;
+        current_pose.pose.orientation = ToQuaternion(0);
         UGVpath.poses.push_back(current_pose);
 
-        for (int j = 0; j < solutions[i].size();j++) {
+        for (int j = 0; j < solutionStop[i].size();j++) {
+            uavPose.position.x = solutionStop[i][j].x;
             uavPose.position.y = solutionStop[i][j].y;
             uavPose.position.z = solutionStop[i][j].z;
-            uavPose.position.x = solutionStop[i][j].x;
+            uavPose.orientation = ToQuaternion(0);
             if (stopSet.count(uavPose) == 0) {
-                uavSet.insert(uavPose);
+                uavSet.emplace(uavPose, j);
             }
+        }
+        for (int j = 0; j < solutions[i].size();j++) {
             // std::cout<<"i="<<i<<", j="<<j<<std::endl;
             tm_vec(0) = solutions[i][j].x;
             tm_vec(1) = solutions[i][j].y;
@@ -237,20 +246,62 @@ void rviz_show(std::vector<std::vector<State>>& solutions, std::vector<std::vect
             current_pose.pose.position.x = solutions[i][j].x;
             current_pose.pose.position.y = solutions[i][j].y;
             current_pose.pose.position.z = solutions[i][j].z;
+            current_pose.pose.orientation = ToQuaternion(0);
             UAVPath[i].poses.push_back(current_pose);
         };
     };
     current_pose.pose.position.x = solutions[0][0].x;
     current_pose.pose.position.y = solutions[0][0].y;
     current_pose.pose.position.z = solutions[0][0].z;
+    current_pose.pose.orientation = ToQuaternion(0);
     UGVpath.poses.push_back(current_pose);
 
 
-    //path marker for ugv&uav
+    //border line
     visualization_msgs::Marker marker;
     marker.header.frame_id = "world";
     marker.header.stamp = ros::Time::now();
+    marker.ns = "border";
+    marker.action = visualization_msgs::Marker::ADD;
+    marker.type = visualization_msgs::Marker::LINE_STRIP;
+    marker.scale.x = 2;
+    marker.color.a = color_a;
+    marker.color.r = 0.0;
+    marker.color.g = 1.0;
+    marker.color.b = 0.0;
+    geometry_msgs::Point borderPoint;
+    borderPoint.x = 0;
+    borderPoint.y = 0;
+    borderPoint.z = 0;
+    marker.points.push_back(borderPoint);
+    borderPoint.x = 60 * scale;
+    marker.points.push_back(borderPoint);
+    borderPoint.y = 40 * scale;
+    marker.points.push_back(borderPoint);
+    borderPoint.x = 0;
+    marker.points.push_back(borderPoint);
+    borderPoint.y = 0;
+    marker.points.push_back(borderPoint);
+    MarkerBaseArray.markers.push_back(marker);
+    marker.points.clear();
+
+    int cnt = 0;//identical ID
+    //path marker for ugv&uav
     marker.ns = "ugvpath";
+    marker.action = visualization_msgs::Marker::ADD;
+    marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+    marker.scale.z = 5;
+    marker.color.r = 1.0;
+    marker.color.g = 1.0;
+    marker.color.b = 1.0;
+    
+    for (auto& pose : stopSet) {
+        marker.pose = pose.first;
+        marker.text = std::to_string(pose.second);
+        marker.id = cnt++;
+        MarkerBaseArray.markers.push_back(marker);
+    }
+
     marker.action = visualization_msgs::Marker::ADD;
     marker.type = visualization_msgs::Marker::SPHERE;
     marker.scale.x = 5;
@@ -260,22 +311,36 @@ void rviz_show(std::vector<std::vector<State>>& solutions, std::vector<std::vect
     marker.color.r = 1.0;
     marker.color.g = 0.0;
     marker.color.b = 0.0;
-    int cnt = 0;
     for (auto& pose : stopSet) {
-        marker.pose = pose;
+        marker.pose = pose.first;
         marker.id = cnt++;
         MarkerBaseArray.markers.push_back(marker);
     }
+
     cnt = 0;
     marker.ns = "uavpath";
-    marker.scale.x = 2;
-    marker.scale.y = 2;
-    marker.scale.z = 1;
+    marker.action = visualization_msgs::Marker::ADD;
+    marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+    marker.color.r = 1.0;
+    marker.color.g = 1.0;
+    marker.color.b = 1.0;
+    marker.scale.z = 3;
+
+    for (auto& pose : uavSet) {
+        marker.pose = pose.first;
+        marker.text = std::to_string(pose.second);
+        marker.id = cnt++;
+        MarkerBaseArray.markers.push_back(marker);
+    }
+    marker.type = visualization_msgs::Marker::SPHERE;
+    marker.scale.x = 3;
+    marker.scale.y = 3;
+    marker.scale.z = 2;
     marker.color.r = 0.0;
     marker.color.g = 0.0;
     marker.color.b = 1.0;
     for (auto& pose : uavSet) {
-        marker.pose = pose;
+        marker.pose = pose.first;
         marker.id = cnt++;
         MarkerArray.markers.push_back(marker);
     }
