@@ -274,15 +274,15 @@ void rviz_show(std::vector<std::vector<State>>& solutions, std::vector<std::vect
     borderPoint.y = 0;
     borderPoint.z = 0;
     marker.points.push_back(borderPoint);
-    borderPoint.x = 60 * scale;
+    borderPoint.x = 200 * scale;
     marker.points.push_back(borderPoint);
-    borderPoint.y = 40 * scale;
+    borderPoint.y = 200 * scale;
     marker.points.push_back(borderPoint);
     borderPoint.x = 0;
     marker.points.push_back(borderPoint);
     borderPoint.y = 0;
     marker.points.push_back(borderPoint);
-    MarkerBaseArray.markers.push_back(marker);
+    // MarkerBaseArray.markers.push_back(marker);//取消边框
     marker.points.clear();
 
     int cnt = 0;//identical ID

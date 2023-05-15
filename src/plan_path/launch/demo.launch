@@ -4,7 +4,7 @@
   <arg name="map_size_y" default="100.0"/>
    -->
 
-  <arg name="inputFile" default="$(arg output_path)/result_60*40/result1/catOut.yaml" />
+  <arg name="inputFile" default="$(arg output_path)/output1.yaml" />
   <!-- <arg name="inputFile" default="$(arg output_path)/output.yaml" /> -->
   <arg name="pcd_file" default="$(arg output_path)/45x40m.pcd"/>
   <!-- <node pkg="reading_pcd" type="pcd_read" name="random_complex" output="screen">
