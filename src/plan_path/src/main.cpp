@@ -30,7 +30,7 @@ typedef std::vector<std::pair<double, double>> CandidateSol;
 
 
 std::vector<std::vector<CandidateSol>>  candidatesolutions;
-double scale = 2;
+double scale = 0.5;
 
 using Eigen::Vector4d;
 using Eigen::Vector3i;
@@ -188,8 +188,6 @@ void yaml_read(std::string filename, std::vector<std::vector<State>>& agents, st
         agentsStop.emplace_back(single_stop);
         
     }
-
-    // }
 
 }
 
